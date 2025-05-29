@@ -3,15 +3,15 @@
 #include <ESP8266WebServer.h>
 #include <Servo.h>
 
-#include "WebHtml.h";
+#include "WebHtml.h"
 
 #define ServoPort1 D1
 #define ServoPort2 D2
 #define ServoPort3 D3
 #define ServoPort4 D4
 
-const char* ssid = "Ge Creative";
-const char* password = "gecreative";
+const char* ssid = "ESP32";
+const char* password = "americano";
 
 Servo myservo1, myservo2, myservo3, myservo4;
 ESP8266WebServer server(80);
@@ -41,7 +41,7 @@ void handleServo(){
   myservo4.write(pos4);
   
   delay(15);
-  server.send(200, "text/plane","");
+  server.send(200, "text/plain","");
 }
 
 void setup() {
