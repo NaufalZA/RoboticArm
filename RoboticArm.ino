@@ -7,11 +7,11 @@
 
 #define ServoPort1 D1
 #define ServoPort2 D2
-#define ServoPort3 D3
-#define ServoPort4 D4
+#define ServoPort3 D5
+#define ServoPort4 D8
 
 const char* ssid = "ESP32";
-const char* password = "americano";
+const char* password = "";
 
 Servo myservo1, myservo2, myservo3, myservo4;
 ESP8266WebServer server(80);
