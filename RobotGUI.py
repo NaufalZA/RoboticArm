@@ -7,7 +7,7 @@ class ServoControllerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Kontrol Servo Arduino")
-        self.root.geometry("320x420")
+        self.root.geometry("420x420")
         self.root.resizable(False, False)
 
         self.serial_connection = None
@@ -28,8 +28,11 @@ class ServoControllerApp:
         self.disconnect_button = ttk.Button(connection_frame, text="Disconnect", command=self.disconnect_serial, state="disabled")
         self.disconnect_button.grid(row=0, column=3, padx=5, pady=5)
 
+        self.reset_button = ttk.Button(connection_frame, text="Reset", command=self.reset_servos)
+        self.reset_button.grid(row=0, column=4, padx=5, pady=5)
+
         self.status_label = ttk.Label(connection_frame, text="Status: Disconnected", foreground="red")
-        self.status_label.grid(row=1, column=0, columnspan=4, padx=5, pady=5)
+        self.status_label.grid(row=1, column=0, columnspan=5, padx=5, pady=5)
 
         # --- Frame Kontrol Servo ---
         control_frame = ttk.LabelFrame(root, text="Kontrol Servo")
@@ -82,6 +85,11 @@ class ServoControllerApp:
             self.connect_button.config(state="normal")
             self.disconnect_button.config(state="disabled")
             self.com_port_entry.config(state="normal")
+    
+    def reset_servos(self):
+        """Reset all servos to their default position (90 degrees)"""
+        for slider in self.sliders:
+            slider.set(90)
     
     def send_command(self, servo_num, value):
         if self.serial_connection and self.serial_connection.is_open:
