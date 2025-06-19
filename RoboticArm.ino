@@ -1,73 +1,84 @@
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
 #include <Servo.h>
 
-#include "WebHtml.h"
+// --- Pin Servo untuk Arduino ---
+// Pastikan Anda menghubungkan servo ke pin PWM (biasanya ditandai dengan ~)
+// Contoh untuk Arduino Uno/Nano: 3, 5, 6, 9, 10, 11
+#define ServoPort1 5
+#define ServoPort2 6
+#define ServoPort3 9
+#define ServoPort4 10
 
-#define ServoPort1 D1
-#define ServoPort2 D2
-#define ServoPort3 D5
-#define ServoPort4 D8
-
-const char* ssid = "ESP32";
-const char* password = "";
-
+// Membuat objek untuk setiap servo
 Servo myservo1, myservo2, myservo3, myservo4;
-ESP8266WebServer server(80);
-
-void handleRoot() {
- //String s = MAIN_page; //Read HTML contents
- //server.send(200, "text/html", s); //Send web page
-
-  server.send(200, "text/html", MAIN_page); //--> Send web page
-}
-
-void handleServo(){
-  String POS1 = server.arg("servoPOS1");
-  int pos1 = POS1.toInt();
-  myservo1.write(pos1);
-  
-  String POS2 = server.arg("servoPOS2");
-  int pos2 = POS2.toInt();
-  myservo2.write(pos2);
-
-  String POS3 = server.arg("servoPOS3");
-  int pos3 = POS3.toInt();
-  myservo3.write(pos3);
-
-  String POS4 = server.arg("servoPOS4");
-  int pos4 = POS4.toInt();
-  myservo4.write(pos4);
-  
-  delay(15);
-  server.send(200, "text/plain","");
-}
 
 void setup() {
-  Serial.begin(115200);
-  delay(500);
-
+  // Mulai komunikasi serial pada baud rate 9600
+  Serial.begin(9600);
+  
+  // Menghubungkan objek servo ke pin yang ditentukan
   myservo1.attach(ServoPort1);
   myservo2.attach(ServoPort2);
   myservo3.attach(ServoPort3);
   myservo4.attach(ServoPort4);
-  
-  WiFi.softAP(ssid, password);
 
-  IPAddress apip = WiFi.softAPIP();
-  Serial.print("Connect your wifi laptop/mobile phone to this NodeMCU Access Point : ");
-  Serial.println(ssid);
-  Serial.print("Visit this IP : ");
-  Serial.print(apip);
-  Serial.println(" in your browser.");
-  
-  server.on("/",handleRoot);
-  server.on("/setPOS",handleServo);
-  server.begin();  
-  Serial.println("HTTP server started");
+  // Mengatur posisi awal servo (opsional, contoh: 90 derajat)
+  myservo1.write(90);
+  myservo2.write(90);
+  myservo3.write(90);
+  myservo4.write(90);
+
+  // Menampilkan pesan instruksi di Serial Monitor
+  Serial.println("Kontrol Servo Siap.");
+  Serial.println("Kirim perintah dengan format: S<nomor_servo>,<posisi>");
+  Serial.println("Contoh: S1,180 atau S3,45");
 }
 
 void loop() {
- server.handleClient();
+  // Cek apakah ada data yang masuk dari Serial Monitor
+  if (Serial.available() > 0) {
+    // Baca string yang masuk sampai karakter newline
+    String command = Serial.readStringUntil('\n');
+    command.trim(); // Hapus spasi atau karakter tak terlihat
+
+    // Cari posisi koma sebagai pemisah
+    int commaIndex = command.indexOf(',');
+
+    // Pastikan formatnya benar (harus ada 'S' di awal dan ada koma)
+    if (command.startsWith("S") && commaIndex > 0) {
+      // Ambil nomor servo (karakter setelah 'S')
+      int servoNumber = command.substring(1, commaIndex).toInt();
+      
+      // Ambil nilai posisi (angka setelah koma)
+      int position = command.substring(commaIndex + 1).toInt();
+
+      // Batasi nilai posisi antara 0 dan 180
+      position = constrain(position, 0, 180);
+
+      Serial.print("Menggerakkan Servo ");
+      Serial.print(servoNumber);
+      Serial.print(" ke posisi ");
+      Serial.println(position);
+
+      // Kirim perintah ke servo yang sesuai
+      switch (servoNumber) {
+        case 1:
+          myservo1.write(position);
+          break;
+        case 2:
+          myservo2.write(position);
+          break;
+        case 3:
+          myservo3.write(position);
+          break;
+        case 4:
+          myservo4.write(position);
+          break;
+        default:
+          Serial.println("Nomor servo tidak valid. Gunakan 1-4.");
+          break;
+      }
+    } else {
+      Serial.println("Format perintah salah. Contoh: S1,90");
+    }
+  }
 }
