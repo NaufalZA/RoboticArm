@@ -1,8 +1,5 @@
 #include <Servo.h>
 
-// --- Pin Servo untuk Arduino ---
-// Pastikan Anda menghubungkan servo ke pin PWM (biasanya ditandai dengan ~)
-// Contoh untuk Arduino Uno/Nano: 3, 5, 6, 9, 10, 11
 #define ServoPort1 9
 #define ServoPort2 10
 #define ServoPort3 11
