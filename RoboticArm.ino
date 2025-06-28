@@ -3,9 +3,10 @@
 #define ServoPort1 9
 #define ServoPort2 10
 #define ServoPort3 11
+#define ServoPort4 12
 
 // Membuat objek untuk setiap servo
-Servo myservo1, myservo2, myservo3;
+Servo myservo1, myservo2, myservo3, myservo4;
 
 void setup()
 {
@@ -16,16 +17,18 @@ void setup()
   myservo1.attach(ServoPort1);
   myservo2.attach(ServoPort2);
   myservo3.attach(ServoPort3);
+  myservo4.attach(ServoPort4);
 
   // Mengatur posisi awal servo (90 derajat)
-  myservo1.write(90);
-  myservo2.write(90);
-  myservo3.write(90);
+  myservo1.write(0);
+  myservo2.write(0);
+  myservo3.write(100);
+  myservo4.write(60);
 
   // Menampilkan pesan instruksi di Serial Monitor
   Serial.println("Kontrol Servo Siap.");
   Serial.println("Kirim perintah dengan format: S<nomor_servo>,<posisi>");
-  Serial.println("Contoh: S1,90 atau S3,45");
+  Serial.println("Contoh: S1,90 atau S4,45");
 }
 
 void loop()
@@ -49,8 +52,8 @@ void loop()
       // Ambil nilai posisi (angka setelah koma)
       int position = command.substring(commaIndex + 1).toInt();
 
-      // Batasi nilai posisi antara 0 dan 90
-      position = constrain(position, 0, 90);
+      // Batasi nilai posisi antara 0 dan 180
+      position = constrain(position, 0, 180);
 
       Serial.print("Menggerakkan Servo ");
       Serial.print(servoNumber);
@@ -69,8 +72,11 @@ void loop()
       case 3:
         myservo3.write(position);
         break;
+      case 4:
+        myservo4.write(position);
+        break;
       default:
-        Serial.println("Nomor servo tidak valid. Gunakan 1-3.");
+        Serial.println("Nomor servo tidak valid. Gunakan 1-4.");
         break;
       }
     }
