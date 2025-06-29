@@ -10,7 +10,7 @@ class ServoControllerApp:
         self.root.resizable(False, False)
 
         self.serial_connection = None
-        self.selected_servo = 1  # Changed from 0 to 1
+        self.selected_servo = 9  # Changed from 1 to 9
 
         # --- Frame Koneksi ---
         connection_frame = ttk.LabelFrame(root, text="Koneksi")
@@ -41,11 +41,11 @@ class ServoControllerApp:
         self.sliders = []
         self.servo_buttons = []
         
-        # Default positions for servos 1-4
-        default_positions = [0, 0, 100, 60]
+        # Default positions for servos 9-12
+        default_positions = [0, 0, 0, 0]
         
         for i in range(4):
-            servo_num = i + 1  # Convert to 1-based numbering
+            servo_num = i + 9  # Convert to 9-based numbering (9, 10, 11, 12)
             
             # Button untuk memilih servo aktif
             select_btn = ttk.Button(control_frame, text=f"S{servo_num}", width=4,
@@ -69,15 +69,15 @@ class ServoControllerApp:
             # Update label when slider moves
             slider.configure(command=lambda value, s=servo_num, lbl=value_label: self.update_slider(s, value, lbl))
 
-        # Set servo 1 as default selected
-        self.select_servo(1)
+        # Set servo 9 as default selected
+        self.select_servo(9)
         
         # Bind keyboard events
         self.root.bind('<Key>', self.on_key_press)
         self.root.focus_set()
 
         # Instructions
-        ttk.Label(root, text="Keys: 1-4 untuk pilih servo, Arrow keys untuk kontrol", 
+        ttk.Label(root, text="Keys: 9,0,1,2 untuk pilih servo, Arrow keys untuk kontrol", 
                  font=('Arial', 8)).pack(pady=5)
 
     def connect_serial(self):
@@ -101,10 +101,14 @@ class ServoControllerApp:
         self.com_port_entry.config(state="normal")
     
     def reset_servos(self):
-        default_positions = [0, 0, 100, 60]
-        for i, slider in enumerate(self.sliders):
-            slider.set(default_positions[i])
-    
+        if self.serial_connection:
+            try:
+                command = "default\n"
+                self.serial_connection.write(command.encode())
+                print("Sent: default")
+            except Exception as e:
+                print(f"Error sending default command: {e}")
+        
     def send_command(self, servo_num, value):
         if self.serial_connection:
             try:
@@ -122,7 +126,7 @@ class ServoControllerApp:
     def select_servo(self, servo_index):
         self.selected_servo = servo_index
         for i, btn in enumerate(self.servo_buttons):
-            servo_num = i + 1
+            servo_num = i + 9
             if servo_num == servo_index:
                 btn.config(text=f"S{servo_num}*")
             else:
@@ -130,19 +134,26 @@ class ServoControllerApp:
 
     def on_key_press(self, event):
         if event.keysym in ['Up', 'Right']:
-            slider_index = self.selected_servo - 1  # Convert to 0-based for slider array
+            slider_index = self.selected_servo - 9  # Convert to 0-based for slider array
             current_pos = self.sliders[slider_index].get()
             new_pos = min(180, current_pos + 5)
             self.sliders[slider_index].set(new_pos)
             
         elif event.keysym in ['Down', 'Left']:
-            slider_index = self.selected_servo - 1  # Convert to 0-based for slider array
+            slider_index = self.selected_servo - 9  # Convert to 0-based for slider array
             current_pos = self.sliders[slider_index].get()
             new_pos = max(0, current_pos - 5)
             self.sliders[slider_index].set(new_pos)
             
         elif event.keysym in ['1', '2', '3', '4']:
-            self.select_servo(int(event.keysym))
+            if event.keysym == '1':
+                self.select_servo(9)
+            elif event.keysym == '2':
+                self.select_servo(10)
+            elif event.keysym == '3':
+                self.select_servo(11)
+            elif event.keysym == '4':
+                self.select_servo(12)
 
 if __name__ == "__main__":
     root = tk.Tk()

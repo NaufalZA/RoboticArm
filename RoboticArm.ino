@@ -22,13 +22,24 @@ void setup()
   // Mengatur posisi awal servo (90 derajat)
   myservo1.write(0);
   myservo2.write(0);
-  myservo3.write(100);
-  myservo4.write(60);
+  myservo3.write(0);
+  myservo4.write(0);
 
   // Menampilkan pesan instruksi di Serial Monitor
   Serial.println("Kontrol Servo Siap.");
   Serial.println("Kirim perintah dengan format: S<nomor_servo>,<posisi>");
-  Serial.println("Contoh: S1,90 atau S4,45");
+  Serial.println("Contoh: S9,90 atau S12,45");
+  Serial.println("Kirim 'default' untuk reset semua servo ke posisi awal");
+}
+
+// Fungsi untuk reset servo ke posisi awal
+void resetToDefault()
+{
+  myservo1.write(0);
+  myservo2.write(0);
+  myservo3.write(0);
+  myservo4.write(0);
+  Serial.println("Semua servo direset ke posisi awal");
 }
 
 void loop()
@@ -39,6 +50,13 @@ void loop()
     // Baca string yang masuk sampai karakter newline
     String command = Serial.readStringUntil('\n');
     command.trim(); // Hapus spasi atau karakter tak terlihat
+
+    // Cek apakah perintah adalah "default"
+    if (command.equalsIgnoreCase("default"))
+    {
+      resetToDefault();
+      return;
+    }
 
     // Cari posisi koma sebagai pemisah
     int commaIndex = command.indexOf(',');
@@ -63,26 +81,26 @@ void loop()
       // Kirim perintah ke servo yang sesuai
       switch (servoNumber)
       {
-      case 1:
+      case 9:
         myservo1.write(position);
         break;
-      case 2:
+      case 10:
         myservo2.write(position);
         break;
-      case 3:
+      case 11:
         myservo3.write(position);
         break;
-      case 4:
+      case 12:
         myservo4.write(position);
         break;
       default:
-        Serial.println("Nomor servo tidak valid. Gunakan 1-4.");
+        Serial.println("Nomor servo tidak valid. Gunakan 9-12.");
         break;
       }
     }
     else
     {
-      Serial.println("Format perintah salah. Contoh: S1,90");
+      Serial.println("Format perintah salah. Contoh: S9,90");
     }
   }
 }
