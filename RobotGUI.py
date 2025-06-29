@@ -12,6 +12,21 @@ class ServoControllerApp:
         self.serial_connection = None
         self.selected_servo = 9
 
+        # Servo ranges [min, max] and default positions
+        self.servo_ranges = {
+            9 : (0, 180),    # Servo 9: 0-180°
+            10: (0, 180),    # Servo 10: 0-180°
+            11: (0, 180),  # Servo 11: 0-180°
+            12: (0, 180)    # Servo 12: 0-180°
+        }
+        
+        self.default_positions = {
+            9 : 0,   # Servo 9 default
+            10: 0,  # Servo 10 default
+            11: 0,  # Servo 11 default
+            12: 0   # Servo 12 default
+        }
+
         connection_frame = ttk.LabelFrame(root, text="Koneksi")
         connection_frame.pack(padx=10, pady=10, fill="x")
 
@@ -39,25 +54,25 @@ class ServoControllerApp:
         self.sliders = []
         self.servo_buttons = []
         
-        default_positions = [0, 0, 0, 0]
-        
         for i in range(4):
             servo_num = i + 9
+            min_pos, max_pos = self.servo_ranges[servo_num]
+            default_pos = self.default_positions[servo_num]
             
             select_btn = ttk.Button(control_frame, text=f"S{servo_num}", width=4,
                                    command=lambda s=servo_num: self.select_servo(s))
             select_btn.grid(row=i, column=0, padx=5, pady=5)
             self.servo_buttons.append(select_btn)
             
-            ttk.Label(control_frame, text=f"Servo {servo_num}:").grid(row=i, column=1, padx=5, pady=5, sticky="w")
+            ttk.Label(control_frame, text=f"Servo {servo_num} ({min_pos}-{max_pos}°):").grid(row=i, column=1, padx=5, pady=5, sticky="w")
             
-            slider = ttk.Scale(control_frame, from_=0, to=180, orient="horizontal", length=150,
+            slider = ttk.Scale(control_frame, from_=min_pos, to=max_pos, orient="horizontal", length=150,
                                command=lambda value, s=servo_num: self.send_command(s, int(float(value))))
-            slider.set(default_positions[i])
+            slider.set(default_pos)
             slider.grid(row=i, column=2, padx=5, pady=5)
             self.sliders.append(slider)
             
-            value_label = ttk.Label(control_frame, text=f"{default_positions[i]}°", width=5)
+            value_label = ttk.Label(control_frame, text=f"{default_pos}°", width=5)
             value_label.grid(row=i, column=3, padx=5, pady=5)
             
             slider.configure(command=lambda value, s=servo_num, lbl=value_label: self.update_slider(s, value, lbl))
@@ -126,13 +141,15 @@ class ServoControllerApp:
         if event.keysym in ['Up', 'Right']:
             slider_index = self.selected_servo - 9 
             current_pos = self.sliders[slider_index].get()
-            new_pos = min(180, current_pos + 5)
+            min_pos, max_pos = self.servo_ranges[self.selected_servo]
+            new_pos = min(max_pos, current_pos + 5)
             self.sliders[slider_index].set(new_pos)
             
         elif event.keysym in ['Down', 'Left']:
             slider_index = self.selected_servo - 9 
             current_pos = self.sliders[slider_index].get()
-            new_pos = max(0, current_pos - 5)
+            min_pos, max_pos = self.servo_ranges[self.selected_servo]
+            new_pos = max(min_pos, current_pos - 5)
             self.sliders[slider_index].set(new_pos)
             
         elif event.keysym in ['1', '2', '3', '4']:
