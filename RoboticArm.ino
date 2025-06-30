@@ -9,11 +9,11 @@
 int servoRanges[4][2] = {
     {0, 180}, // Servo 9 range: tangan kiri
     {0, 180}, // Servo 10 range: bawah
-    {55, 80}, // Servo 11 range: capit
+    {0, 180}, // Servo 11 range: capit
     {0, 180}  // Servo 12 range: tangan kanan
 };
 
-int defaultPositions[4] = {90, 90, 70, 90}; // Default positions for each servo
+int defaultPositions[4] = {90, 90, 20, 90}; // Default positions for each servo
 
 Servo myservo1, myservo2, myservo3, myservo4;
 

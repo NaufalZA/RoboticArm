@@ -6,7 +6,7 @@ class ServoControllerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Servo Controller")
-        self.root.geometry("400x350")
+        self.root.geometry("500x350")
         self.root.resizable(False, False)
 
         self.serial_connection = None
@@ -14,39 +14,51 @@ class ServoControllerApp:
 
         # Servo ranges [min, max] and default positions
         self.servo_ranges = {
-            9 : (0, 180),    # Servo 9: tangan kiri 0-180°
-            10: (0, 180),    # Servo 10: bawah 0-180°
-            11: (55, 80),    # Servo 11: capit 55-80°
-            12: (0, 180)     # Servo 12: tangan kanan 0-180°
+            9 : (0, 180),
+            10: (0, 180),
+            11: (20, 40),
+            12: (0, 180)
         }
         
         self.default_positions = {
-            9 : 90,   # Servo 9 default
-            10: 90,   # Servo 10 default
-            11: 70,   # Servo 11 default
-            12: 90    # Servo 12 default
+            9 : 90,
+            10: 90,
+            11: 20,
+            12: 90 
+        }
+
+     
+        self.servo_increments = {
+            9 : 5, 
+            10: 5, 
+            11: 10,
+            12: 5  
+        }
+
+        # Servo name mappings
+        self.servo_names = {
+            9: "Tangan Kiri",
+            10: "Bawah", 
+            11: "Capit",
+            12: "Tangan Kanan"
         }
 
         connection_frame = ttk.LabelFrame(root, text="Koneksi")
         connection_frame.pack(padx=10, pady=10, fill="x")
 
-        ttk.Label(connection_frame, text="Port COM:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        
-        self.com_port_entry = ttk.Entry(connection_frame, width=10)
-        self.com_port_entry.grid(row=0, column=1, padx=5, pady=5)
-        self.com_port_entry.insert(0, "COM6")
+        ttk.Label(connection_frame, text="Port: COM6").grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.connect_button = ttk.Button(connection_frame, text="Connect", command=self.connect_serial)
-        self.connect_button.grid(row=0, column=2, padx=5, pady=5)
+        self.connect_button.grid(row=0, column=1, padx=5, pady=5)
 
         self.disconnect_button = ttk.Button(connection_frame, text="Disconnect", command=self.disconnect_serial, state="disabled")
-        self.disconnect_button.grid(row=0, column=3, padx=5, pady=5)
+        self.disconnect_button.grid(row=0, column=2, padx=5, pady=5)
 
         self.reset_button = ttk.Button(connection_frame, text="Reset", command=self.reset_servos)
-        self.reset_button.grid(row=0, column=4, padx=5, pady=5)
+        self.reset_button.grid(row=0, column=3, padx=5, pady=5)
 
         self.status_label = ttk.Label(connection_frame, text="Status: Disconnected", foreground="red")
-        self.status_label.grid(row=1, column=0, columnspan=5, padx=5, pady=5)
+        self.status_label.grid(row=1, column=0, columnspan=4, padx=5, pady=5)
 
         control_frame = ttk.LabelFrame(root, text="Kontrol Servo")
         control_frame.pack(padx=10, pady=5, fill="x")
@@ -59,20 +71,20 @@ class ServoControllerApp:
             min_pos, max_pos = self.servo_ranges[servo_num]
             default_pos = self.default_positions[servo_num]
             
-            select_btn = ttk.Button(control_frame, text=f"S{servo_num}", width=4,
+            select_btn = ttk.Button(control_frame, text=self.servo_names[servo_num], width=12,
                                    command=lambda s=servo_num: self.select_servo(s))
             select_btn.grid(row=i, column=0, padx=5, pady=5)
             self.servo_buttons.append(select_btn)
             
-            ttk.Label(control_frame, text=f"Servo {servo_num} ({min_pos}-{max_pos}°):").grid(row=i, column=1, padx=5, pady=5, sticky="w")
+            ttk.Label(control_frame, text=f"S{i+1} ({min_pos}-{max_pos}°):", width=20).grid(row=i, column=1, padx=5, pady=5, sticky="w")
             
-            slider = ttk.Scale(control_frame, from_=min_pos, to=max_pos, orient="horizontal", length=150,
+            slider = ttk.Scale(control_frame, from_=min_pos, to=max_pos, orient="horizontal", length=200,
                                command=lambda value, s=servo_num: self.send_command(s, int(float(value))))
             slider.set(default_pos)
             slider.grid(row=i, column=2, padx=5, pady=5)
             self.sliders.append(slider)
             
-            value_label = ttk.Label(control_frame, text=f"{default_pos}°", width=5)
+            value_label = ttk.Label(control_frame, text=f"{default_pos}°", width=6)
             value_label.grid(row=i, column=3, padx=5, pady=5)
             
             slider.configure(command=lambda value, s=servo_num, lbl=value_label: self.update_slider(s, value, lbl))
@@ -82,17 +94,27 @@ class ServoControllerApp:
         self.root.bind('<Key>', self.on_key_press)
         self.root.focus_set()
 
-        ttk.Label(root, text="Keys: 9,0,1,2 untuk pilih servo, Arrow keys untuk kontrol", 
+        ttk.Label(root, text="Keys: 1,2,3,4 untuk pilih servo, Arrow keys untuk kontrol", 
                  font=('Arial', 8)).pack(pady=5)
+
+        # Auto-connect to COM6 on startup
+        self.auto_connect()
+
+    def auto_connect(self):
+        try:
+            self.serial_connection = serial.Serial("COM6", 115200, timeout=1)
+            self.status_label.config(text="Connected to COM6", foreground="green")
+            self.connect_button.config(state="disabled")
+            self.disconnect_button.config(state="normal")
+        except Exception as e:
+            self.status_label.config(text=f"Auto-connect failed: {e}", foreground="orange")
 
     def connect_serial(self):
         try:
-            port = self.com_port_entry.get()
-            self.serial_connection = serial.Serial(port, 115200, timeout=1)
-            self.status_label.config(text=f"Connected to {port}", foreground="green")
+            self.serial_connection = serial.Serial("COM6", 115200, timeout=1)
+            self.status_label.config(text="Connected to COM6", foreground="green")
             self.connect_button.config(state="disabled")
             self.disconnect_button.config(state="normal")
-            self.com_port_entry.config(state="disabled")
         except Exception as e:
             messagebox.showerror("Error", f"Gagal connect: {e}")
 
@@ -103,7 +125,6 @@ class ServoControllerApp:
         self.status_label.config(text="Disconnected", foreground="red")
         self.connect_button.config(state="normal")
         self.disconnect_button.config(state="disabled")
-        self.com_port_entry.config(state="normal")
     
     def reset_servos(self):
         if self.serial_connection:
@@ -133,23 +154,25 @@ class ServoControllerApp:
         for i, btn in enumerate(self.servo_buttons):
             servo_num = i + 9
             if servo_num == servo_index:
-                btn.config(text=f"S{servo_num}*")
+                btn.config(text=f"{self.servo_names[servo_num]}*")
             else:
-                btn.config(text=f"S{servo_num}")
+                btn.config(text=self.servo_names[servo_num])
 
     def on_key_press(self, event):
+        increment = self.servo_increments[self.selected_servo]
+        
         if event.keysym in ['Up', 'Right']:
             slider_index = self.selected_servo - 9 
             current_pos = self.sliders[slider_index].get()
             min_pos, max_pos = self.servo_ranges[self.selected_servo]
-            new_pos = min(max_pos, current_pos + 5)
+            new_pos = min(max_pos, current_pos + increment)
             self.sliders[slider_index].set(new_pos)
             
         elif event.keysym in ['Down', 'Left']:
             slider_index = self.selected_servo - 9 
             current_pos = self.sliders[slider_index].get()
             min_pos, max_pos = self.servo_ranges[self.selected_servo]
-            new_pos = max(min_pos, current_pos - 5)
+            new_pos = max(min_pos, current_pos - increment)
             self.sliders[slider_index].set(new_pos)
             
         elif event.keysym in ['1', '2', '3', '4']:
