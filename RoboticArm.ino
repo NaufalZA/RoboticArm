@@ -13,7 +13,7 @@ int servoRanges[4][2] = {
     {0, 180}  // Servo 12 range: tangan kanan
 };
 
-int defaultPositions[4] = {90, 90, 20, 90}; // Default positions for each servo
+int defaultPositions[4] = {90, 90, 20, 40}; // Default positions for each servo
 
 Servo myservo1, myservo2, myservo3, myservo4;
 

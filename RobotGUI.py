@@ -24,15 +24,15 @@ class ServoControllerApp:
             9 : 90,
             10: 90,
             11: 20,
-            12: 90 
+            12: 40 
         }
 
      
         self.servo_increments = {
-            9 : 5, 
-            10: 5, 
+            9 : 10, 
+            10: 10, 
             11: 10,
-            12: 5  
+            12: 10  
         }
 
         # Servo name mappings
