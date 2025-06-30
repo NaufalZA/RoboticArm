@@ -14,17 +14,17 @@ class ServoControllerApp:
 
         # Servo ranges [min, max] and default positions
         self.servo_ranges = {
-            9 : (0, 180),    # Servo 9: 0-180°
-            10: (0, 180),    # Servo 10: 0-180°
-            11: (0, 180),  # Servo 11: 0-180°
-            12: (0, 180)    # Servo 12: 0-180°
+            9 : (0, 180),    # Servo 9: tangan kiri 0-180°
+            10: (0, 180),    # Servo 10: bawah 0-180°
+            11: (55, 80),    # Servo 11: capit 55-80°
+            12: (0, 180)     # Servo 12: tangan kanan 0-180°
         }
         
         self.default_positions = {
-            9 : 0,   # Servo 9 default
-            10: 0,  # Servo 10 default
-            11: 0,  # Servo 11 default
-            12: 0   # Servo 12 default
+            9 : 90,   # Servo 9 default
+            10: 90,   # Servo 10 default
+            11: 70,   # Servo 11 default
+            12: 90    # Servo 12 default
         }
 
         connection_frame = ttk.LabelFrame(root, text="Koneksi")
