@@ -129,11 +129,18 @@ class ServoControllerApp:
     def reset_servos(self):
         if self.serial_connection:
             try:
-                command = "default\n"
-                self.serial_connection.write(command.encode())
-                print("Sent: default")
+                for servo_num, default_pos in self.default_positions.items():
+                    command = f"S{servo_num},{default_pos}\n"
+                    self.serial_connection.write(command.encode())
+                    print(f"Sent: {command.strip()}")
+                    
+                # Update sliders to default positions
+                for i, slider in enumerate(self.sliders):
+                    servo_num = i + 9
+                    slider.set(self.default_positions[servo_num])
+                    
             except Exception as e:
-                print(f"Error sending default command: {e}")
+                print(f"Error sending reset commands: {e}")
         
     def send_command(self, servo_num, value):
         if self.serial_connection:

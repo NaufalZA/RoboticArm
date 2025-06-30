@@ -35,26 +35,12 @@ void setup()
   Serial.println("Started");
 }
 
-void resetToDefault()
-{
-  myservo1.write(defaultPositions[0]);
-  myservo2.write(defaultPositions[1]);
-  myservo3.write(defaultPositions[2]);
-  myservo4.write(defaultPositions[3]);
-}
-
 void loop()
 {
   if (Serial.available() > 0)
   {
     String command = Serial.readStringUntil('\n');
     command.trim();
-
-    if (command.equalsIgnoreCase("default"))
-    {
-      resetToDefault();
-      return;
-    }
 
     int commaIndex = command.indexOf(',');
 
