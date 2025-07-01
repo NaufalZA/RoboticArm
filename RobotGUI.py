@@ -28,21 +28,21 @@ class ModernServoControllerApp:
         self.servo_ranges = {
             9: (0, 180),
             10: (0, 180),
-            11: (15, 45),
+            11: (15, 35),
             12: (0, 180)
         }
         
         self.default_positions = {
             9: 90,
             10: 90,
-            11: 45,
+            11: 35,
             12: 40 
         }
 
         self.servo_increments = {
             9: 10, 
             10: 10, 
-            11: 10,  # Smaller increment for gripper
+            11: 30,  # Smaller increment for gripper
             12: 10  
         }
 
