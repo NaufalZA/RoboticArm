@@ -5,15 +5,13 @@
 #define ServoPort3 11
 #define ServoPort4 12
 
-// Servo range definitions [min, max]
 int servoRanges[4][2] = {
-    {0, 180}, // Servo 9 range: tangan kiri
-    {0, 180}, // Servo 10 range: bawah
-    {0, 180}, // Servo 11 range: capit
-    {0, 180}  // Servo 12 range: tangan kanan
-};
+    {0, 180},
+    {0, 180},
+    {0, 180},
+    {0, 180}};
 
-int defaultPositions[4] = {90, 90, 35, 40}; // Default positions for each servo
+int defaultPositions[4] = {90, 90, 35, 40};
 
 Servo myservo1, myservo2, myservo3, myservo4;
 
@@ -26,7 +24,6 @@ void setup()
   myservo3.attach(ServoPort3);
   myservo4.attach(ServoPort4);
 
-  // Set to default positions
   myservo1.write(defaultPositions[0]);
   myservo2.write(defaultPositions[1]);
   myservo3.write(defaultPositions[2]);
@@ -49,7 +46,6 @@ void loop()
       int servoNumber = command.substring(1, commaIndex).toInt();
       int position = command.substring(commaIndex + 1).toInt();
 
-      // Apply servo-specific constraints
       int servoIndex = servoNumber - 9;
       if (servoIndex >= 0 && servoIndex < 4)
       {
